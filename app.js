@@ -42,17 +42,15 @@ producer.on('ready', function () {
         var index = Math.floor(Math.random() * stocks.length),
             stock = stocks[index],
             delta = Math.floor(Math.random() * stock.price * 10) / 100,
-            multiplier = Math.random() < 0.5 ? -1 : 1;
+            multiplier = Math.random() < 0.5 ? -1 : 1,
+            message = { _timestamp: Date.now(), item: stock };
 
         stock.price = Math.floor((stock.price + multiplier * delta) * 100) / 100;
-        stocks[index] = stock;
-
-        console.log(stock);
-
+        
         producer.send(
             [{
                 topic: config.kafka.topic,
-                messages: JSON.stringify(stock),
+                messages: new kafka.KeyedMessage(stock.name, JSON.stringify(message)),
                 attributes: 2
             }], function (e) {
                 if (e) {
